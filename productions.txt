@@ -1,0 +1,45 @@
+S ->  D 
+S -> ST
+D -> T 0  19 
+D -> T1 0 11 E  19
+T1 ->  24  
+T1 -> 25
+A -> T1   15  N  16  
+T ->  T1
+T ->  A
+ N -> 1
+ CS -> 13 STL  14  
+ STL -> 13  ST  14 
+ ST ->  SST 19 
+ ST ->  SRT  19 
+ SST-> ASS 
+ SST-> IO
+ ASS-> 0 11 E 			
+ E -> TR	
+ E -> E 3 TR 		
+ TR -> TR 4 SUB 
+ TR -> SUB 
+ SUB -> SUB 5 F 
+ SUB -> F
+ F ->  17  E  18 
+ F ->  24 
+ F -> 25
+ IO ->   29  12  0  
+ IO ->  30  12  0
+ SRT -> IST
+ SRT -> WST 
+ WST ->  28   17   C  18   CST
+IST ->   26   17  C  18   CST
+IST ->  26   17   C  18  CST   27   CST
+ C -> E  21  E1
+ C -> E1
+ C -> E REL E
+ REL -> 6
+ REL -> 8
+ REL -> 7
+ REL -> 9
+ REL -> 10
+ E1 -> E1  22   E2 
+ E1 -> E2
+ E2 ->  23  E1
+ E2 -> E

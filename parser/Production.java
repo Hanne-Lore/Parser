@@ -3,61 +3,49 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class Production {
-		List<String> lhp;
-		List<String> rhp;
-
-		Production(String lhp, String value, String nt) {
-			this.lhp = Arrays.asList(lhp);
-			this.rhp = Arrays.asList(value, nt);
+		String left;
+		List<String> right;
+		int dot;
+		
+		Production(String left , List<String> right) {
+			this.left = left;
+			this.right = right;
+			this.dot = 0;
 		}
 		
-		Production(String lhp, String value) {
-			this.lhp = Arrays.asList(lhp);
-			this.rhp = Arrays.asList(value);
+		public String getLeft() {
+			return left;
 		}
 		
-		Production(String lhp) {
-			this.lhp = Arrays.asList(lhp);
-			this.rhp = new ArrayList<String>();
+		public List<String> getRight() {
+			return right;
 		}
 		
-		Production(List<String> lhp, List<String> rhp) {
-			this.lhp = lhp;
-			this.rhp = rhp;
-		}
-
-		String getNt() {
-			return lhp.get(0);
+		public void dotplusplus(){
+			this.dot ++;
 		}
 		
-		String getValue() {
-			return rhp.get(0);
+		public boolean is_dot_last(){
+			return this.dot >= right.size();
 		}
 		
-		String getTo() {
-			return rhp.get(1);
-		}
-		
-		List<String> getLhp() {
-			return lhp;
-		}
-
-		List<String> getRhp() {
-			return rhp;
+		public String getElementAfterDot(){
+			return right.get(dot);
 		}
 		
 		public String toString(){
 			String line="";
 			
-			for( String s: lhp){
-				line+=s+" ";
-			}
-			line+="->";
-			for( String s: rhp){
+			line = this.left;
+			
+			line+=" -> ";
+			for( String s: right){
 				line+=s+" ";
 			}
 			return line;
 		}
-	}
+		
+		
+		
+}
