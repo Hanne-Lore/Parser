@@ -8,7 +8,10 @@ public class Main {
 		//s.processInput();
 		
 		Parser p = new Parser();
-		p.readFromFile("productions.txt");
+		//p.readFromFile("productions.txt");
+		p.readFromFile("good_example.txt");
+		p.createStates();
+		System.out.println(p.analyse("1223"));
 		
 	}
 
