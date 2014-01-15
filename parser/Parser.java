@@ -25,6 +25,8 @@ public class Parser {
 	
 	public void createStates(){
 		
+		System.out.println("------------------------- CREATE STATES ------------------------------\n\n");
+		
 		if( productions.size() == 0)
 			return;
 		String start = productions.get(0).getLeft();
@@ -36,13 +38,7 @@ public class Parser {
 		for( int i = 0; i < states.size(); i++ ){
 			
 			//System.out.println("State " + i+": " + states.get(i).toString()+"\n\n");
-			
-			if( i == 12){
-				break;
-			}
-			if( i == 6){
-				String ss="";
-			}
+
 			for(Production prod : states.get(i).productions){
 				
 				Production p = prod.clone();
@@ -58,6 +54,7 @@ public class Parser {
 						this.generatorProd.add(p.clone());
 						closure(p);
 						states.get(i).go_to.put(elem, states.size()-1);
+						String prev_action = states.get(i).action;
 						states.get(i).action = "shift";
 												
 						if(p.is_dot_last() && !p.getLeft().equals("S'")) {
@@ -67,12 +64,17 @@ public class Parser {
 							states.get(states.size()-1).action = "accept";
 						}
 						
+						if( !states.get(i).action.equals(prev_action) && !prev_action.equals("")){
+							//System.out.println("There is a conflict: same state has actions: " + prev_action + " and " + states.get(i).action);
+							//return;
+						}
+						
 					}else{
 						states.get(i).go_to.put(elem, pos+1);
 					}
 				}
 			}
-			//System.out.println("State " + i+": " + states.get(i).toString()+"\n\n");  this is the preeteeeh state print
+			System.out.println("State " + i+": " + states.get(i).toString()+"\n\n");  
 		}
 		
 		int ct = 0;
@@ -176,21 +178,109 @@ public class Parser {
 		
 	}
 	
+	public String analysePif(List<Scanner.pif> pifs, List<String> indentifiersST, List<String> constantsST){
+		System.out.println("------------------------- ANALYSIS PIFS ------------------------------");
+		String output="";
+		
+
+		List<Object> stack = new ArrayList<>();
+		stack.add(states.get(0));
+		
+		
+		while(true){
+			
+			int last_pos= stack.size()-1;
+			Object obj =  stack.get(last_pos);
+			
+			if( obj instanceof State){
+				
+				State s = (State)obj;
+				
+				switch(s.action){
+					case "shift":
+						
+						if( pifs.size() == 0)
+							return "error: shift but no more input left";
+						//String inp_shift = pif.substring(0, 1);
+						//input = input.substring(1);
+						//stack.add(inp_shift);
+						
+						Scanner.pif pif = pifs.remove(0);
+						stack.add(pif);
+						
+						if ( !s.go_to.containsKey(String.valueOf(pif.code))){
+							return "ERROR: goto from state: "+s.toString()+" \nto "+ pif.code + " is not possible";
+						}
+						
+						int new_state_index = s.go_to.get(String.valueOf(pif.code));
+						State new_state = states.get(new_state_index);
+						stack.add(new_state);
+						
+						break;
+						
+					case "accept":
+						return output;
+						
+					case "reduce":
+												
+						 //reduce state print
+						
+						int prod_index = s.reduce_pos;
+						Production p = productions.get(prod_index-1);
+						int rhp_size = p.getRight().size();
+						//stack = stack.subList(0, stack.size()-rhp_size*2);
+						//stack.subList(stack.size()-1 - rhp_size*2, stack.size()-1).clear();
+						for( int i = 0; i < rhp_size*2; i++){
+							stack.remove(stack.size()-1);
+						}
+						
+						
+						State last_state = (State)stack.get(stack.size()-1);
+						stack.add(p.getLeft());
+						
+						if ( !last_state.go_to.containsKey(p.getLeft())){
+							return "ERROR reduce: goto from state "+s.toString()+" \nto "+ p.getLeft() + " is not possible";
+						}
+						new_state_index = last_state.go_to.get(p.getLeft());
+						new_state = states.get(new_state_index);
+						stack.add(new_state);
+						output= prod_index+", "+output;
+						
+						break;
+				}
+			}
+		}
+		
+	}
 	public void closure(Production p){
+		
+		System.out.println("------------------------- Closure " + p.toString()+ " ------------------------------");
 		State s = new State();
 		List<Production> prList = new ArrayList<>();
 		prList.add(p);
 		
+		
 		for(int i = 0; i < prList.size(); i++){
-			
 			Production prod = prList.get(i);
+			
+			
+			
+			
 			String elem="";
 			if( !prod.is_dot_last()){
 				 elem = prList.get(i).getElementAfterDot();
 			}
 			if( !prod.is_dot_last() && !isTerminal(elem)){
+				if( p.left.equals("ASS") && p.dot == 2 && i == 2){
+					String bla;
+					bla = "das";
+				}
 				List<Production> l = getProductionsByLeft(prod.getElementAfterDot());
-				prList.addAll(l);
+				for ( Production p1: l){
+					if( !prList.contains(p1)){
+						prList.add(p1);
+					}
+				}
 			}
 		}
 		
